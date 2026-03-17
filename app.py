@@ -16,9 +16,7 @@ products = [
 
 @app.route("/", methods=["GET"])
 def home():
-    return jsonify({
-        "message": "Welcome to the Product Catalog API"
-    }), 200
+    return jsonify({"message": "Welcome to the Product Catalog API"}), 200
 
 
 # -----------------------------
@@ -26,27 +24,18 @@ def home():
 # -----------------------------
 @app.route("/products", methods=["GET"])
 def get_products():
-
-    # Get query parameter
     category = request.args.get("category")
 
-    # If category filter exists
     if category:
+        # Filter products by category
         filtered_products = [
             product for product in products
             if product["category"].lower() == category.lower()
         ]
+        return jsonify(filtered_products), 200  # Return list directly
 
-        return jsonify({
-            "count": len(filtered_products),
-            "products": filtered_products
-        }), 200
-
-    # If no filter → return all products
-    return jsonify({
-        "count": len(products),
-        "products": products
-    }), 200
+    # Return all products as a list
+    return jsonify(products), 200
 
 
 # -----------------------------
@@ -54,15 +43,10 @@ def get_products():
 # -----------------------------
 @app.route("/products/<int:id>", methods=["GET"])
 def get_product(id):
-
-    for product in products:
-        if product["id"] == id:
-            return jsonify(product), 200
-
-    # If product not found
-    return jsonify({
-        "error": "Product not found"
-    }), 404
+    product = next((p for p in products if p["id"] == id), None)
+    if product:
+        return jsonify(product), 200
+    return jsonify({"error": "Product not found"}), 404
 
 
 if __name__ == "__main__":
